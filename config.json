@@ -1,0 +1,91 @@
+{
+  "log_level": "DEBUG",
+  "database": {
+    "#DB_ENGINE": "sqlite",
+    "#DB_HOST": "/data/sqlite/database.sqlite3",
+    "DB_ENGINE": "postgresql",
+    "DB_HOST": "localhost",
+    "DB_PORT": 5432,
+    "DB_DATABASE": "mybot",
+    "DB_USER": "postgres",
+    "DB_PASSWORD": "postgresqlpassword",
+    "DB_ROOT_USER": "postgres",
+    "DB_ROOT_PASSWORD": "postgresqlpassword"
+  },
+  "connector": {
+    "type": "telegram",
+    "telegram": {
+      "token": "TOKEN_HERE",
+      "chat_id": "CHAT_ID_HEAR",
+      "whisper": {
+        "model_type": "tiny",
+        "use_fp16": false,
+        "language": "es"
+      }
+    }
+  },
+  "modules": [
+    {
+      "name": "table",
+      "words_to_match": [
+        "tabla","table"
+      ],
+      "active": true
+    },
+    {
+      "name": "ping",
+      "words_to_match": [
+        "ping"
+      ],
+      "active": true
+    },
+    {
+      "name": "hello",
+      "words_to_match": [
+        "hola",
+        "hi",
+        "buenas",
+        "buenos"
+      ],
+      "active": true
+    },
+    {
+      "name": "byebye",
+      "words_to_match": [
+        "adios",
+        "chao",
+        "hasta",
+        "luego"
+      ],
+      "active": true
+    },
+    {
+      "name": "repeater",
+      "words_to_match": [
+        "repite",
+        "imítame",
+        "imitame",
+        "repite conmigo"
+      ],
+      "active": true
+    },
+    {
+      "name": "checkurl",
+      "words_to_match": [
+        "check",
+        "checkea",
+        "url",
+        "comprobar",
+        "comprueba",
+        "compruébame",
+        "compruebame",
+        "dirección",
+        "direccion",
+        "web",
+        "página",
+        "pagina"
+      ],
+      "active": true
+    }
+  ]
+}

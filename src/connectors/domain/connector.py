@@ -14,6 +14,9 @@ class ConnectorResponseMultiple(ConnectorResponse):
     def __init__(self, responses: List[ConnectorResponse]):
         self._responses = responses
 
+    def add_response(self, response: ConnectorResponse):
+        self._responses.append(response)
+
     def get_responses(self) -> List[ConnectorResponse]:
         return self._responses
 

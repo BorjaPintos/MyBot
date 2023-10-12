@@ -2,3 +2,6 @@ loguru==0.7.0
 python-telegram-bot==20.3
 requests==2.31.0
 git+https://github.com/openai/whisper.git@eff383b27b783e280c089475852ba83f20f64998
+SQLAlchemy==2.0.21
+SQLAlchemy-Utils==0.41.1
+psycopg2==2.9.9

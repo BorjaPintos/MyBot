@@ -1,4 +1,5 @@
 import importlib
+import traceback
 
 from loguru import logger
 from src.connectors.application.connectorcallbackdecision import ConnectorCallbackDecision
@@ -7,6 +8,7 @@ import inspect
 
 from src.core.application.coremodule import CoreModule
 from src.core.application.emptymodule import EmptyModule
+from src.persistence.application.databasemanager import DatabaseManager
 
 MODULES_PACKAGE = "src.modules.application"
 
@@ -15,6 +17,7 @@ class Core:
 
     def __init__(self, config: dict):
         self._config = config
+        self._database = self.__init_database(self._config["database"])
         self._connector = self.__get_connector(self._config["connector"])
         self._active_modules = [EmptyModule()]
         self._inactive_modules = []
@@ -24,6 +27,10 @@ class Core:
     def run(self):
         decision_callback = ConnectorCallbackDecision(self._active_modules, self._inactive_modules)
         self._connector.run_listen(decision_callback)
+
+    @staticmethod
+    def __init_database(config_database: dict):
+        return DatabaseManager.init(config_database)
 
     @staticmethod
     def __get_connector(config_conector: dict):
@@ -50,4 +57,5 @@ class Core:
                             logger.info("Módulo {} cargado pero inactivo".format(module_config["name"]))
                         break
             except Exception:
+                traceback.print_exc()
                 logger.error("El módulo {} no se pudo cargar".format(module_config["name"]))

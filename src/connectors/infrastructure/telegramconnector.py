@@ -1,8 +1,9 @@
 import tempfile
 from os import path
+from time import sleep
 
 from src.connectors.domain.connector import Connector, ConnectorResponse, ConnectorResponseText, \
-    ConnectorResponseMultiple, ConnectorResponseDictionary, ConnectorResponseTable
+    ConnectorResponseMultiple, ConnectorResponseDictionary, ConnectorResponseTable, ConnectorResponseList
 from src.connectors.domain.connectorcallback import ConnectorCallback
 from loguru import logger
 import telegram
@@ -56,6 +57,8 @@ class TelegramConnector(Connector):
                 connector_context.get_connector().send_response(connector_response, connector_context)
         if isinstance(response, ConnectorResponseText):
             await TelegramConnector._send_response_text(connector_context, response.get_text())
+        if isinstance(response, ConnectorResponseList):
+            await TelegramConnector._send_response_text(connector_context, str(response.get_list()))
         if isinstance(response, ConnectorResponseDictionary):
             headers = list(response.get_dictionary().keys())
             values = [list(response.get_dictionary().values())]
@@ -138,5 +141,5 @@ class TelegramConnector(Connector):
             table.append("| " + " | ".join(str(value).ljust(width) for value, width in zip(row, column_widths)) + " |")
         table.append(separator)
         str_table = "\n".join(table)
-        logger.debug("\n"+str_table)
+        logger.debug("\n" + str_table)
         return str_table

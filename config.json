@@ -1,16 +1,19 @@
 {
   "log_level": "DEBUG",
   "database": {
-    "#DB_ENGINE": "sqlite",
-    "#DB_HOST": "/data/sqlite/database.sqlite3",
-    "DB_ENGINE": "postgresql",
-    "DB_HOST": "localhost",
-    "DB_PORT": 5432,
-    "DB_DATABASE": "mybot",
-    "DB_USER": "postgres",
-    "DB_PASSWORD": "postgresqlpassword",
-    "DB_ROOT_USER": "postgres",
-    "DB_ROOT_PASSWORD": "postgresqlpassword"
+    "type": "sqlite",
+    "sqlite": {
+      "file": "database.sqlite3",
+      "debug": true
+    },
+    "postgres": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "mybot",
+      "user": "postgres",
+      "password": "postgresqlpassword",
+      "debug": true
+    }
   },
   "connector": {
     "type": "telegram",
@@ -28,7 +31,8 @@
     {
       "name": "table",
       "words_to_match": [
-        "tabla","table"
+        "tabla",
+        "table"
       ],
       "active": true
     },
@@ -84,6 +88,17 @@
         "web",
         "página",
         "pagina"
+      ],
+      "active": true
+    },
+    {
+      "name": "finanzas",
+      "words_to_match": [
+        "finanzas",
+        "operación",
+        "operacion",
+        "ingreso",
+        "gasto"
       ],
       "active": true
     }

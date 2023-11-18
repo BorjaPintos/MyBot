@@ -6,15 +6,18 @@ from sqlalchemy.orm import DeclarativeMeta
 from src.modules.application.finanzas.orm.categoriagasto import CategoriaGasto
 from src.modules.application.finanzas.orm.categoriaingreso import CategoriaIngreso
 from src.modules.application.finanzas.orm.cuenta import Cuenta
+from src.modules.application.finanzas.orm.monedero import Monedero
 from src.modules.application.finanzas.orm.operaciongasto import OperacionGasto
 from src.modules.application.finanzas.orm.operacioningreso import OperacionIngreso
 from src.persistence.application.databasemanager import DatabaseManager
+from src.persistence.infrastructure.orm.baseentity import BaseEntity
 
 
 class FinanzasUseCase:
     _SQL_BASE_FOLDER = "./src/modules/application/finanzas/sql/"
     _ELEMENT_TO_INIT = {
         Cuenta: "cuenta.sql",
+        Monedero: "monedero.sql",
         CategoriaGasto: "categoriagasto.sql",
         CategoriaIngreso: "categoriaingreso.sql",
         OperacionGasto: None,
@@ -23,7 +26,6 @@ class FinanzasUseCase:
 
     def __init__(self):
         self._check_database()
-
 
     def _check_database(self):
         try:
@@ -35,7 +37,7 @@ class FinanzasUseCase:
             traceback.print_exc()
             logger.error(e)
 
-    def _check_cuenta(self, table: DeclarativeMeta, file: str):
+    def _check_cuenta(self, table: BaseEntity, file: str):
         if not DatabaseManager.check_if_table_exist(table.__tablename__):
             DatabaseManager.create_table(table)
             if file:

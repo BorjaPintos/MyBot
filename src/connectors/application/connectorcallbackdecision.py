@@ -1,5 +1,7 @@
 from typing import List, Optional
 from loguru import logger
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+
 from src.connectors.domain.connectorcallback import ConnectorCallback
 from src.connectors.domain.connectorcontext import ConnectorContext
 from src.modules.domain.module import Module
@@ -9,11 +11,12 @@ from src.modules.domain.statusenum import ModuleStatus
 
 class ConnectorCallbackDecision(ConnectorCallback):
 
-    def __init__(self, active_modules: List[Module], inactive_modules: List[Module]):
+    def __init__(self, active_modules: List[Module], inactive_modules: List[Module], pipeline: pipeline = None):
         super().__init__()
         self._active_modules = active_modules
         self._inactive_modules = inactive_modules
         self._active_user_module = {}
+        self._pipeline = pipeline
 
     def on_message(self, connectorContext: ConnectorContext):
         logger.info("Mensaje Recibido: {}", connectorContext.get_msg())
@@ -26,7 +29,7 @@ class ConnectorCallbackDecision(ConnectorCallback):
     def usar_modulo(self, connectorContext, msg):
         module_context = self.__get_active_mode(connectorContext.get_user_id(), connectorContext.get_room_id())
         if not module_context:
-            module = self.__decide_module(msg)
+            module = self.__run_decision(msg)
             module_context = ModuleContext(msg=msg, user_id=connectorContext.get_user_id(),
                                            username=connectorContext.get_username(), module=module)
             self.__add_active_module(connectorContext.get_user_id(), connectorContext.get_room_id(), module_context)
@@ -64,7 +67,29 @@ class ConnectorCallbackDecision(ConnectorCallback):
                     self._active_user_module[user_id][room_id].get_username()))
                 del self._active_user_module[user_id][room_id]
 
-    def __decide_module(self, msg: str) -> Module:
+    def __run_decision(self, msg):
+        if self._pipeline:
+            return self.__decide_module_with_pipeline(msg)
+        else:
+            return self.__decide_module_with_words(msg)
+
+    def __decide_module_with_pipeline(self, msg: str) -> Module:
+        labels = ["otro"]
+        switch = {}
+        for module in self._active_modules:
+            switch[module.get_name()] = module
+            labels.append(module.get_name())
+        clasification = self._pipeline(msg, candidate_labels=labels)
+        winner = clasification["labels"][0]
+        logger.debug("Resultado de la clasificación: {}", clasification)
+        if clasification["scores"][0] > 1.9 / len(clasification["scores"]):
+            logger.debug("El Modulo {} tuvo un score de: {}".format(winner, clasification["scores"][0]))
+            return switch.get(winner, self._active_modules[0])
+        else:
+            logger.debug("No se tuvo un score lo suficientemente alto, se ejecutará el empty")
+            return self._active_modules[0]
+
+    def __decide_module_with_words(self, msg: str) -> Module:
         module_max_punctuation_index = 0
         max_punctuation = 0
         index = 0
@@ -76,7 +101,7 @@ class ConnectorCallbackDecision(ConnectorCallback):
                 module_max_punctuation_index = index
             index += 1
         logger.debug(
-                "El Modulo seleccionado es:{}".format(self._active_modules[module_max_punctuation_index].get_name()))
+            "El Modulo seleccionado es:{}".format(self._active_modules[module_max_punctuation_index].get_name()))
         return self._active_modules[module_max_punctuation_index]
 
     @staticmethod

@@ -9,8 +9,8 @@ from src.modules.domain.statusenum import ModuleStatus
 class CoreModule(Module):
 
     def __init__(self, active_modules: List[Module], inactive_modules: List[Module]):
-        super().__init__("core", self._get_help(), {
-            "name": "core",
+        super().__init__("modulo", self._get_help(), {
+            "name": "modulo",
             "words_to_match": [
                 "que puedes hacer", "qué puedes hacer",
                 "puedes", "hacer", "ayuda", "help", "/help", "/ayuda",

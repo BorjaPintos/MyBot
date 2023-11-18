@@ -2,6 +2,8 @@ import importlib
 import traceback
 
 from loguru import logger
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+
 from src.connectors.application.connectorcallbackdecision import ConnectorCallbackDecision
 from src.connectors.domain.connectorfactory import ConnectorFactory
 import inspect
@@ -25,7 +27,9 @@ class Core:
         self._active_modules.append(CoreModule(self._active_modules, self._inactive_modules))
 
     def run(self):
-        decision_callback = ConnectorCallbackDecision(self._active_modules, self._inactive_modules)
+        decision_callback = ConnectorCallbackDecision(self._active_modules,
+                                                      self._inactive_modules,
+                                                      pipeline=self._load_pipeline())
         self._connector.run_listen(decision_callback)
 
     @staticmethod
@@ -35,6 +39,15 @@ class Core:
     @staticmethod
     def __get_connector(config_conector: dict):
         return ConnectorFactory.get_connector(config_conector)
+
+    def _load_pipeline(self):
+        if self._config["decision"]["type"] == "ia":
+            if "path" in self._config["decision"]["ia"]:
+                model = AutoModelForSequenceClassification.from_pretrained(self._config["decision"]["ia"]["path"])
+                tokenizer = AutoTokenizer.from_pretrained(self._config["decision"]["ia"]["name"])
+                return pipeline("zero-shot-classification", model=model, tokenizer=tokenizer)
+            else:
+                return pipeline("zero-shot-classification", model=self._config["decision"]["ia"]["name"])
 
     def __load_modules(self, modules_config: dict):
         for module_config in modules_config:

@@ -27,6 +27,14 @@
       }
     }
   },
+  "decision": {
+    "type": "words",
+    "words": {},
+    "ia": {
+      "path": "./iamodels/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
+      "name": "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    }
+  },
   "modules": [
     {
       "name": "table",
